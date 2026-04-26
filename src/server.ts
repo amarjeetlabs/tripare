@@ -48,19 +48,28 @@ app.get("/api/hotels", async (req, res) => {
     return;
   }
 
-  if (minPrice || maxPrice) {
-    const hotels = await getFilteredHotels(
-      city,
-      parseFloat(minPrice),
-      parseFloat(maxPrice)
-    );
-    res.json(hotels);
-    return;
-  }
+  try {
+    console.log(`Fetching hotels for ${city}`);
+    const hotels = await startHotelWorkflow(city);
+    await saveHotels(city, hotels as any);
+    console.log(`Cached ${(hotels as any).length} hotels for ${city} in Redis`);
 
-  const hotels = await startHotelWorkflow(city);
-  await saveHotels(city, hotels as any);
-  res.json(hotels);
+    if (minPrice || maxPrice) {
+      const filtered = await getFilteredHotels(
+        city,
+        parseFloat(minPrice),
+        parseFloat(maxPrice)
+      );
+      console.log(`Filtered to ${filtered.length} hotels by price range`);
+      res.json(filtered);
+      return;
+    }
+
+    res.json(hotels);
+  } catch (err) {
+    console.error("Hotel workflow error:", err);
+    res.status(500).json({ error: "Failed to process hotel request" });
+  }
 });
 
 app.get("/health", async (_req, res) => {

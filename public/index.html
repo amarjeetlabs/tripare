@@ -17,19 +17,54 @@
     header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
       color: #fff;
-      padding: 28px 0;
+      padding: 30px 0;
       text-align: center;
     }
 
-    header h1 { font-size: 1.8rem; font-weight: 600; }
+    header h1 { font-size: 1.85rem; font-weight: 700; }
     header p { margin-top: 6px; color: #a0aec0; font-size: 0.95rem; }
 
-    .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+    .container { max-width: 1060px; margin: 0 auto; padding: 24px 16px; }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+
+    .pipe-step {
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #eef0fb;
+      color: #4361ee;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .pipe-step span {
+      display: block;
+      font-size: 0.7rem;
+      color: #718096;
+      font-weight: 400;
+      margin-top: 2px;
+      transition: color 0.3s;
+    }
+    .pipe-step.active { background: #4361ee; color: #fff; }
+    .pipe-step.active span { color: #dde4ff; }
+    .pipe-arrow { color: #cbd5e0; font-size: 1.1rem; font-weight: 700; }
 
     .search-box {
       background: #fff;
       border-radius: 12px;
-      padding: 24px;
+      padding: 22px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       display: flex;
       flex-wrap: wrap;
@@ -37,8 +72,14 @@
       align-items: flex-end;
     }
 
-    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
-    .field label { font-size: 0.82rem; font-weight: 600; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
     .field select,
     .field input {
       padding: 10px 12px;
@@ -51,8 +92,10 @@
     .field select:focus,
     .field input:focus { border-color: #4361ee; }
 
+    .actions { display: flex; gap: 10px; align-items: flex-end; }
+
     .btn {
-      padding: 10px 28px;
+      padding: 10px 26px;
       border: none;
       border-radius: 8px;
       font-size: 0.95rem;
@@ -73,19 +116,17 @@
     }
     .btn-outline:hover { background: #eef0fb; }
 
-    .actions { display: flex; gap: 10px; align-items: flex-end; }
-
     .status-bar {
-      margin-top: 20px;
+      margin-top: 18px;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .status-pill {
-      padding: 6px 14px;
+      padding: 5px 14px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
     }
     .status-pill.up { background: #c6f6d5; color: #22543d; }
@@ -94,30 +135,46 @@
 
     .results-section { margin-top: 24px; }
     .results-section h2 { font-size: 1.1rem; margin-bottom: 14px; color: #2d3748; }
+    .results-count {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 14px;
+    }
 
     .hotel-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 16px;
     }
 
     .hotel-card {
       background: #fff;
       border-radius: 10px;
-      padding: 20px;
+      padding: 18px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
       border-left: 4px solid #4361ee;
       transition: box-shadow 0.2s;
     }
-    .hotel-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .hotel-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
 
     .hotel-card h3 { font-size: 1.05rem; margin-bottom: 10px; color: #1a1a2e; }
+
+    .supplier-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #eef0fb;
+      color: #4361ee;
+      margin-bottom: 10px;
+    }
 
     .hotel-card .detail {
       display: flex;
       justify-content: space-between;
       padding: 4px 0;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       color: #4a5568;
     }
     .hotel-card .detail span:last-child { font-weight: 600; color: #1a1a2e; }
@@ -133,19 +190,15 @@
 
     .empty-state {
       text-align: center;
-      padding: 48px 20px;
+      padding: 44px 20px;
       color: #a0aec0;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
 
-    .loader {
-      text-align: center;
-      padding: 40px;
-      color: #718096;
-    }
+    .loader { text-align: center; padding: 40px; color: #718096; }
     .loader .spinner {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border: 3px solid #e2e8f0;
       border-top-color: #4361ee;
       border-radius: 50%;
@@ -162,6 +215,34 @@
       margin-top: 16px;
       font-size: 0.9rem;
     }
+
+    .comparison-section {
+      margin-top: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 22px;
+      display: none;
+    }
+    .comparison-section h2 { font-size: 1.1rem; margin-bottom: 14px; color: #2d3748; }
+
+    .cmp-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .cmp-table th {
+      text-align: left;
+      padding: 10px;
+      background: #f7fafc;
+      color: #4a5568;
+      font-weight: 600;
+      border-bottom: 2px solid #edf2f7;
+    }
+    .cmp-table td {
+      padding: 10px;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+    }
+    .cmp-table .cheapest { background: #f0fff4; color: #276749; font-weight: 700; }
+    .cmp-table .na-cell { color: #cbd5e0; }
+    .cmp-table .winner-cell { font-weight: 700; color: #38a169; }
 
     .supplier-tabs {
       margin-top: 24px;
@@ -180,7 +261,7 @@
       flex: 1;
       padding: 12px;
       text-align: center;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 600;
       color: #718096;
       background: none;
@@ -194,7 +275,7 @@
 
     .tab-body { padding: 16px; }
 
-    .raw-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .raw-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
     .raw-table th {
       text-align: left;
       padding: 8px 10px;
@@ -209,24 +290,44 @@
       color: #2d3748;
     }
 
+    .footer {
+      text-align: center;
+      padding: 28px 16px;
+      color: #a0aec0;
+      font-size: 0.78rem;
+      margin-top: 20px;
+    }
+
     @media (max-width: 600px) {
       .search-box { flex-direction: column; }
       .actions { width: 100%; }
       .actions .btn { flex: 1; }
+      .pipeline { gap: 6px; padding: 14px; }
+      .pipe-step { padding: 7px 10px; font-size: 0.75rem; }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Hotel Offer Orchestrator</h1>
-    <p>Compare prices across suppliers and find the best deals</p>
+    <p>Aggregate offers from multiple suppliers, deduplicate and find the cheapest deals</p>
   </header>
 
   <div class="container">
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-step" id="pipeSuppliers">Suppliers A, B, C<span>Parallel Fetch</span></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step" id="pipeTemporal">Temporal<span>Orchestrate</span></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step" id="pipeDedup">Dedup<span>Best Price</span></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step" id="pipeRedis">Redis<span>Cache &amp; Filter</span></div>
+    </div>
+
     <div class="search-box">
       <div class="field">
         <label>City</label>
-        <select id="citySelect">
+        <select id="citySelect" onchange="onCityChange()">
           <option value="delhi">Delhi</option>
           <option value="mumbai">Mumbai</option>
           <option value="bangalore">Bangalore</option>
@@ -260,6 +361,11 @@
       </div>
     </div>
 
+    <div class="comparison-section" id="comparisonSection">
+      <h2>Price Comparison Across Suppliers</h2>
+      <div id="comparisonBody"></div>
+    </div>
+
     <div class="supplier-tabs">
       <div class="tab-header">
         <button class="tab-btn active" onclick="switchTab('A', this)">Supplier A</button>
@@ -270,14 +376,18 @@
         <div class="empty-state">Search a city to see raw supplier data.</div>
       </div>
     </div>
+
+    <div class="footer">Built with Node.js + Express + Temporal.io + Redis</div>
   </div>
 
   <script>
     var supplierData = { A: [], B: [], C: [] };
     var activeTab = "A";
+    var lastSupplierCity = "";
 
     window.addEventListener("DOMContentLoaded", function () {
       checkHealth();
+      loadSupplierData();
     });
 
     function checkHealth() {
@@ -297,6 +407,14 @@
         });
     }
 
+    function setPipelineActive(stepId) {
+      var steps = document.querySelectorAll(".pipe-step");
+      steps.forEach(function (s) { s.classList.remove("active"); });
+      if (stepId) {
+        document.getElementById(stepId).classList.add("active");
+      }
+    }
+
     function searchHotels() {
       var city = document.getElementById("citySelect").value;
       var min = document.getElementById("minPrice").value;
@@ -307,8 +425,10 @@
 
       btn.disabled = true;
       btn.textContent = "Searching...";
-      area.innerHTML = '<div class="loader"><div class="spinner"></div>Fetching best deals via Temporal workflow...</div>';
+      area.innerHTML = '<div class="loader"><div class="spinner"></div>Running Temporal workflow...</div>';
       title.textContent = "Best Hotel Deals in " + city.charAt(0).toUpperCase() + city.slice(1);
+
+      setPipelineActive("pipeTemporal");
 
       var url = "/api/hotels?city=" + encodeURIComponent(city);
       if (min) url += "&minPrice=" + min;
@@ -323,33 +443,49 @@
           btn.disabled = false;
           btn.textContent = "Search";
 
+          if (min || max) {
+            setPipelineActive("pipeRedis");
+          } else {
+            setPipelineActive("pipeDedup");
+          }
+
           if (!hotels.length) {
-            area.innerHTML = '<div class="empty-state">No hotels found for this city.</div>';
+            area.innerHTML = '<div class="empty-state">No hotels found for this city' + (min || max ? " in this price range" : "") + ".</div>";
+            document.getElementById("comparisonSection").style.display = "none";
             return;
           }
 
-          var html = '<div class="hotel-grid">';
+          var html = '<p class="results-count">' + hotels.length + " hotel" + (hotels.length > 1 ? "s" : "") + " found</p>";
+          html += '<div class="hotel-grid">';
           hotels.forEach(function (h) {
             html += '<div class="hotel-card">';
+            html += '<div class="supplier-badge">' + escapeHtml(h.supplier) + "</div>";
             html += "<h3>" + escapeHtml(h.name) + "</h3>";
-            html += '<div class="detail"><span>Supplier</span><span>' + escapeHtml(h.supplier) + "</span></div>";
             html += '<div class="detail"><span>Commission</span><span>' + h.commissionPct + "%</span></div>";
             html += '<div class="price-tag">₹' + h.price.toLocaleString("en-IN") + "</div>";
             html += "</div>";
           });
           html += "</div>";
           area.innerHTML = html;
+
+          buildComparison();
         })
         .catch(function (err) {
           btn.disabled = false;
           btn.textContent = "Search";
+          setPipelineActive(null);
           area.innerHTML = '<div class="error-msg">' + escapeHtml(err.message) + "</div>";
         });
 
-      fetchSupplierRaw(city);
+      loadSupplierData();
     }
 
-    function fetchSupplierRaw(city) {
+    function loadSupplierData() {
+      var city = document.getElementById("citySelect").value;
+      if (city === lastSupplierCity) return;
+      lastSupplierCity = city;
+      supplierData = { A: [], B: [], C: [] };
+
       ["A", "B", "C"].forEach(function (s) {
         fetch("/supplier" + s + "/hotels?city=" + encodeURIComponent(city))
           .then(function (r) { return r.json(); })
@@ -362,6 +498,66 @@
             if (activeTab === s) renderSupplierTable(s);
           });
       });
+
+      renderSupplierTable(activeTab);
+    }
+
+    function buildComparison() {
+      var section = document.getElementById("comparisonSection");
+      var body = document.getElementById("comparisonBody");
+      var allHotels = {};
+
+      ["A", "B", "C"].forEach(function (s) {
+        (supplierData[s] || []).forEach(function (h) {
+          if (!allHotels[h.name]) allHotels[h.name] = {};
+          allHotels[h.name][s] = h.price;
+        });
+      });
+
+      var names = Object.keys(allHotels);
+      if (!names.length) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+
+      var html = '<table class="cmp-table"><thead><tr>';
+      html += "<th>Hotel</th><th>Supplier A</th><th>Supplier B</th><th>Supplier C</th><th>Selected</th>";
+      html += "</tr></thead><tbody>";
+
+      names.sort().forEach(function (name) {
+        var data = allHotels[name];
+        var cheapest = "";
+        var lowestPrice = Infinity;
+
+        ["A", "B", "C"].forEach(function (s) {
+          if (data[s] !== undefined && data[s] < lowestPrice) {
+            lowestPrice = data[s];
+            cheapest = s;
+          }
+        });
+
+        var hasMultiple = Object.keys(data).length > 1;
+
+        html += "<tr>";
+        html += "<td><strong>" + escapeHtml(name) + "</strong></td>";
+
+        ["A", "B", "C"].forEach(function (s) {
+          if (data[s] !== undefined) {
+            var cls = (s === cheapest && hasMultiple) ? "cheapest" : "";
+            html += '<td class="' + cls + '">₹' + data[s].toLocaleString("en-IN") + "</td>";
+          } else {
+            html += '<td class="na-cell">&mdash;</td>';
+          }
+        });
+
+        html += '<td class="winner-cell">Supplier ' + cheapest + "</td>";
+        html += "</tr>";
+      });
+
+      html += "</tbody></table>";
+      body.innerHTML = html;
     }
 
     function switchTab(supplier, btnEl) {
@@ -395,6 +591,11 @@
       });
       html += "</tbody></table>";
       body.innerHTML = html;
+    }
+
+    function onCityChange() {
+      lastSupplierCity = "";
+      loadSupplierData();
     }
 
     function clearFilters() {
