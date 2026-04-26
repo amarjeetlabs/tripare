@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotel Offer Orchestrator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      padding: 28px 0;
+      text-align: center;
+    }
+
+    header h1 { font-size: 1.8rem; font-weight: 600; }
+    header p { margin-top: 6px; color: #a0aec0; font-size: 0.95rem; }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px; }
+
+    .search-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+    .field label { font-size: 0.82rem; font-weight: 600; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field select,
+    .field input {
+      padding: 10px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .field select:focus,
+    .field input:focus { border-color: #4361ee; }
+
+    .btn {
+      padding: 10px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background: #4361ee; color: #fff; }
+    .btn-primary:hover { background: #3a56d4; }
+    .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; }
+
+    .btn-outline {
+      background: transparent;
+      color: #4361ee;
+      border: 1.5px solid #4361ee;
+    }
+    .btn-outline:hover { background: #eef0fb; }
+
+    .actions { display: flex; gap: 10px; align-items: flex-end; }
+
+    .status-bar {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .status-pill.up { background: #c6f6d5; color: #22543d; }
+    .status-pill.down { background: #fed7d7; color: #9b2c2c; }
+    .status-pill.loading { background: #fefcbf; color: #744210; }
+
+    .results-section { margin-top: 24px; }
+    .results-section h2 { font-size: 1.1rem; margin-bottom: 14px; color: #2d3748; }
+
+    .hotel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .hotel-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border-left: 4px solid #4361ee;
+      transition: box-shadow 0.2s;
+    }
+    .hotel-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+    .hotel-card h3 { font-size: 1.05rem; margin-bottom: 10px; color: #1a1a2e; }
+
+    .hotel-card .detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 0.88rem;
+      color: #4a5568;
+    }
+    .hotel-card .detail span:last-child { font-weight: 600; color: #1a1a2e; }
+
+    .hotel-card .price-tag {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #edf2f7;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #38a169;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: #a0aec0;
+      font-size: 1rem;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 40px;
+      color: #718096;
+    }
+    .loader .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #4361ee;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      background: #fed7d7;
+      color: #9b2c2c;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 0.9rem;
+    }
+
+    .supplier-tabs {
+      margin-top: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .tab-header {
+      display: flex;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #718096;
+      background: none;
+      border: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active { color: #4361ee; border-bottom-color: #4361ee; }
+    .tab-btn:hover { color: #4361ee; }
+
+    .tab-body { padding: 16px; }
+
+    .raw-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .raw-table th {
+      text-align: left;
+      padding: 8px 10px;
+      background: #f7fafc;
+      color: #4a5568;
+      font-weight: 600;
+      border-bottom: 2px solid #edf2f7;
+    }
+    .raw-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #edf2f7;
+      color: #2d3748;
+    }
+
+    @media (max-width: 600px) {
+      .search-box { flex-direction: column; }
+      .actions { width: 100%; }
+      .actions .btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hotel Offer Orchestrator</h1>
+    <p>Compare prices across suppliers and find the best deals</p>
+  </header>
+
+  <div class="container">
+    <div class="search-box">
+      <div class="field">
+        <label>City</label>
+        <select id="citySelect">
+          <option value="delhi">Delhi</option>
+          <option value="mumbai">Mumbai</option>
+          <option value="bangalore">Bangalore</option>
+          <option value="chennai">Chennai</option>
+          <option value="jaipur">Jaipur</option>
+          <option value="goa">Goa (no results)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Min Price</label>
+        <input type="number" id="minPrice" placeholder="e.g. 3000" />
+      </div>
+      <div class="field">
+        <label>Max Price</label>
+        <input type="number" id="maxPrice" placeholder="e.g. 10000" />
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="searchBtn" onclick="searchHotels()">Search</button>
+        <button class="btn btn-outline" onclick="clearFilters()">Clear</button>
+      </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      <span class="status-pill loading">Checking health...</span>
+    </div>
+
+    <div class="results-section">
+      <h2 id="resultsTitle">Best Hotel Deals</h2>
+      <div id="resultsArea">
+        <div class="empty-state">Select a city and hit Search to find the best hotel prices.</div>
+      </div>
+    </div>
+
+    <div class="supplier-tabs">
+      <div class="tab-header">
+        <button class="tab-btn active" onclick="switchTab('A', this)">Supplier A</button>
+        <button class="tab-btn" onclick="switchTab('B', this)">Supplier B</button>
+        <button class="tab-btn" onclick="switchTab('C', this)">Supplier C</button>
+      </div>
+      <div class="tab-body" id="supplierTabBody">
+        <div class="empty-state">Search a city to see raw supplier data.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var supplierData = { A: [], B: [], C: [] };
+    var activeTab = "A";
+
+    window.addEventListener("DOMContentLoaded", function () {
+      checkHealth();
+    });
+
+    function checkHealth() {
+      var bar = document.getElementById("statusBar");
+      fetch("/health")
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var html = "";
+          html += '<span class="status-pill ' + (data.redis === "up" ? "up" : "down") + '">Redis: ' + data.redis + "</span>";
+          html += '<span class="status-pill ' + (data.supplierA === "up" ? "up" : "down") + '">Supplier A: ' + data.supplierA + "</span>";
+          html += '<span class="status-pill ' + (data.supplierB === "up" ? "up" : "down") + '">Supplier B: ' + data.supplierB + "</span>";
+          html += '<span class="status-pill ' + (data.supplierC === "up" ? "up" : "down") + '">Supplier C: ' + data.supplierC + "</span>";
+          bar.innerHTML = html;
+        })
+        .catch(function () {
+          bar.innerHTML = '<span class="status-pill down">Service unreachable</span>';
+        });
+    }
+
+    function searchHotels() {
+      var city = document.getElementById("citySelect").value;
+      var min = document.getElementById("minPrice").value;
+      var max = document.getElementById("maxPrice").value;
+      var area = document.getElementById("resultsArea");
+      var title = document.getElementById("resultsTitle");
+      var btn = document.getElementById("searchBtn");
+
+      btn.disabled = true;
+      btn.textContent = "Searching...";
+      area.innerHTML = '<div class="loader"><div class="spinner"></div>Fetching best deals via Temporal workflow...</div>';
+      title.textContent = "Best Hotel Deals in " + city.charAt(0).toUpperCase() + city.slice(1);
+
+      var url = "/api/hotels?city=" + encodeURIComponent(city);
+      if (min) url += "&minPrice=" + min;
+      if (max) url += "&maxPrice=" + max;
+
+      fetch(url)
+        .then(function (r) {
+          if (!r.ok) throw new Error("Request failed: " + r.status);
+          return r.json();
+        })
+        .then(function (hotels) {
+          btn.disabled = false;
+          btn.textContent = "Search";
+
+          if (!hotels.length) {
+            area.innerHTML = '<div class="empty-state">No hotels found for this city.</div>';
+            return;
+          }
+
+          var html = '<div class="hotel-grid">';
+          hotels.forEach(function (h) {
+            html += '<div class="hotel-card">';
+            html += "<h3>" + escapeHtml(h.name) + "</h3>";
+            html += '<div class="detail"><span>Supplier</span><span>' + escapeHtml(h.supplier) + "</span></div>";
+            html += '<div class="detail"><span>Commission</span><span>' + h.commissionPct + "%</span></div>";
+            html += '<div class="price-tag">₹' + h.price.toLocaleString("en-IN") + "</div>";
+            html += "</div>";
+          });
+          html += "</div>";
+          area.innerHTML = html;
+        })
+        .catch(function (err) {
+          btn.disabled = false;
+          btn.textContent = "Search";
+          area.innerHTML = '<div class="error-msg">' + escapeHtml(err.message) + "</div>";
+        });
+
+      fetchSupplierRaw(city);
+    }
+
+    function fetchSupplierRaw(city) {
+      ["A", "B", "C"].forEach(function (s) {
+        fetch("/supplier" + s + "/hotels?city=" + encodeURIComponent(city))
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            supplierData[s] = data;
+            if (activeTab === s) renderSupplierTable(s);
+          })
+          .catch(function () {
+            supplierData[s] = [];
+            if (activeTab === s) renderSupplierTable(s);
+          });
+      });
+    }
+
+    function switchTab(supplier, btnEl) {
+      activeTab = supplier;
+      var btns = document.querySelectorAll(".tab-btn");
+      btns.forEach(function (b) { b.classList.remove("active"); });
+      btnEl.classList.add("active");
+      renderSupplierTable(supplier);
+    }
+
+    function renderSupplierTable(supplier) {
+      var body = document.getElementById("supplierTabBody");
+      var data = supplierData[supplier];
+
+      if (!data || !data.length) {
+        body.innerHTML = '<div class="empty-state">No data from Supplier ' + supplier + " for this city.</div>";
+        return;
+      }
+
+      var html = '<table class="raw-table"><thead><tr>';
+      html += "<th>Hotel ID</th><th>Name</th><th>City</th><th>Price</th><th>Commission %</th>";
+      html += "</tr></thead><tbody>";
+      data.forEach(function (h) {
+        html += "<tr>";
+        html += "<td>" + escapeHtml(h.hotelId) + "</td>";
+        html += "<td>" + escapeHtml(h.name) + "</td>";
+        html += "<td>" + escapeHtml(h.city) + "</td>";
+        html += "<td>₹" + h.price.toLocaleString("en-IN") + "</td>";
+        html += "<td>" + h.commissionPct + "%</td>";
+        html += "</tr>";
+      });
+      html += "</tbody></table>";
+      body.innerHTML = html;
+    }
+
+    function clearFilters() {
+      document.getElementById("minPrice").value = "";
+      document.getElementById("maxPrice").value = "";
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
