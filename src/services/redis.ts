@@ -3,7 +3,23 @@ import Redis from "ioredis";
 const redis = new Redis({
   host: process.env.REDIS_HOST || "localhost",
   port: 6379,
+  maxRetriesPerRequest: 1,
+  retryStrategy(times) {
+    if (times > 3) return null;
+    return Math.min(times * 200, 1000);
+  },
+  lazyConnect: true,
 });
+
+redis.on("error", () => {});
+
+let connected = false;
+
+async function ensureConnected() {
+  if (connected) return;
+  await redis.connect();
+  connected = true;
+}
 
 interface Hotel {
   name: string;
@@ -13,6 +29,7 @@ interface Hotel {
 }
 
 export async function saveHotels(city: string, hotels: Hotel[]) {
+  await ensureConnected();
   const key = `hotels:${city.toLowerCase()}`;
   await redis.del(key);
 
@@ -30,6 +47,7 @@ export async function getFilteredHotels(
   minPrice: number,
   maxPrice: number
 ) {
+  await ensureConnected();
   const key = `hotels:${city.toLowerCase()}`;
   const min = isNaN(minPrice) ? "-inf" : minPrice;
   const max = isNaN(maxPrice) ? "+inf" : maxPrice;
@@ -40,6 +58,7 @@ export async function getFilteredHotels(
 
 export async function pingRedis(): Promise<boolean> {
   try {
+    await ensureConnected();
     await redis.ping();
     return true;
   } catch {

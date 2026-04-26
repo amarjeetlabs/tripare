@@ -9,6 +9,44 @@ import { saveHotels, getFilteredHotels, pingRedis } from "./services/redis";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+interface Hotel {
+  name: string;
+  price: number;
+  supplier: string;
+  commissionPct: number;
+}
+
+function deduplicateHotels(city: string): Hotel[] {
+  const supplierA = getSupplierAHotels(city).map((h) => ({
+    name: h.name,
+    price: h.price,
+    supplier: "Supplier A",
+    commissionPct: h.commissionPct,
+  }));
+  const supplierB = getSupplierBHotels(city).map((h) => ({
+    name: h.name,
+    price: h.price,
+    supplier: "Supplier B",
+    commissionPct: h.commissionPct,
+  }));
+  const supplierC = getSupplierCHotels(city).map((h) => ({
+    name: h.name,
+    price: h.price,
+    supplier: "Supplier C",
+    commissionPct: h.commissionPct,
+  }));
+
+  const bestByName = new Map<string, Hotel>();
+  for (const hotel of [...supplierA, ...supplierB, ...supplierC]) {
+    const existing = bestByName.get(hotel.name);
+    if (!existing || hotel.price < existing.price) {
+      bestByName.set(hotel.name, hotel);
+    }
+  }
+
+  return Array.from(bestByName.values());
+}
+
 app.use(express.static(path.join(__dirname, "../public")));
 
 app.get("/supplierA/hotels", (req, res) => {
@@ -48,13 +86,25 @@ app.get("/api/hotels", async (req, res) => {
     return;
   }
 
-  try {
-    console.log(`Fetching hotels for ${city}`);
-    const hotels = await startHotelWorkflow(city);
-    await saveHotels(city, hotels as any);
-    console.log(`Cached ${(hotels as any).length} hotels for ${city} in Redis`);
+  let hotels: Hotel[];
 
-    if (minPrice || maxPrice) {
+  try {
+    console.log(`Fetching hotels for ${city} via Temporal`);
+    hotels = (await startHotelWorkflow(city)) as Hotel[];
+  } catch (err: any) {
+    console.log("Temporal unavailable, using direct dedup:", err.message);
+    hotels = deduplicateHotels(city);
+  }
+
+  try {
+    await saveHotels(city, hotels);
+    console.log(`Cached ${hotels.length} hotels for ${city} in Redis`);
+  } catch (err: any) {
+    console.log("Redis unavailable, skipping cache:", err.message);
+  }
+
+  if (minPrice || maxPrice) {
+    try {
       const filtered = await getFilteredHotels(
         city,
         parseFloat(minPrice),
@@ -63,13 +113,16 @@ app.get("/api/hotels", async (req, res) => {
       console.log(`Filtered to ${filtered.length} hotels by price range`);
       res.json(filtered);
       return;
+    } catch {
+      const min = parseFloat(minPrice) || 0;
+      const max = parseFloat(maxPrice) || Infinity;
+      const filtered = hotels.filter((h) => h.price >= min && h.price <= max);
+      res.json(filtered);
+      return;
     }
-
-    res.json(hotels);
-  } catch (err) {
-    console.error("Hotel workflow error:", err);
-    res.status(500).json({ error: "Failed to process hotel request" });
   }
+
+  res.json(hotels);
 });
 
 app.get("/health", async (_req, res) => {
